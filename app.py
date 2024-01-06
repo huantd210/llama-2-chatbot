@@ -21,10 +21,7 @@ MAX_INPUT_MAX_NEW_TOKENS = int(os.getenv("MAX_INPUT_MAX_NEW_TOKENS"))
 DEFAULT_MAX_NEW_TOKENS = int(os.getenv("DEFAULT_MAX_NEW_TOKENS"))
 MAX_INPUT_TOKEN_LENGTH = int(os.getenv("MAX_INPUT_TOKEN_LENGTH"))
 
-print("SERVER_PORT", SERVER_PORT)
-
-
-logger.info("Starting")
+logger.info("Starting..")
 
 
 def clear_and_save_textbox(message: str) -> tuple[str, str]:
@@ -107,9 +104,9 @@ with gr.Blocks(css="style.css") as app:
             )
             submit_button = gr.Button("Submit", variant="primary", scale=1, min_width=0)
     with gr.Row():
-        retry_button = gr.Button("🔄  Retr", variant="secondary")
-        undo_button = gr.Button("↩️ Undo", variant="secondary")
-        clear_button = gr.Button("🗑️  Clear", variant="secondary")
+        retry_button = gr.Button("Retry", variant="secondary")
+        undo_button = gr.Button("Undo", variant="secondary")
+        clear_button = gr.Button("Clear", variant="secondary")
 
     saved_input = gr.State()
 
@@ -129,7 +126,7 @@ with gr.Blocks(css="style.css") as app:
             minimum=0.1,
             maximum=4.0,
             step=0.1,
-            value=1.0,
+            value=0.1,
         )
         top_p = gr.Slider(
             label="Top-p (nucleus sampling)",

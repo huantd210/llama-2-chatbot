@@ -10,8 +10,8 @@
 
 ## Run on Docker
 
-1. `docker build --platform=linux/amd64 -t llama-2-chatbot:v1.0.0 .`
-2. `docker run -it -p 7860:7860 --platform=linux/amd64 llama-2-chatbot:v1.0.0 python app.py`
+1. `docker build --platform=linux/amd64 -t llama-2-chatbot:1.0.0 .`
+2. `docker run -it -p 7860:7860 --platform=linux/amd64 llama-2-chatbot:1.0.0 python app.py`
 3. Go to http://localhost:7860
 
 ## Reference

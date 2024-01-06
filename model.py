@@ -1,34 +1,64 @@
+import os
 from threading import Thread
 from typing import Iterator
 
-
-# import torch
+import torch
 from transformers.utils import logging
 from ctransformers import AutoModelForCausalLM
-from transformers import TextIteratorStreamer, AutoTokenizer
+from transformers import (
+    TextIteratorStreamer,
+    AutoTokenizer,
+    StoppingCriteria,
+    StoppingCriteriaList,
+)
+
+PRETRAINED_LIB = os.getenv("PRETRAINED_LIB")
+PRETRAINED_GPU_LAYERS = (
+    int(os.getenv("PRETRAINED_GPU_LAYERS")) if os.getenv("PRETRAINED_GPU_LAYERS") else 0
+)
 
 logging.set_verbosity_info()
 logger = logging.get_logger("transformers")
 
-config = {
-    "max_new_tokens": 256,
-    "repetition_penalty": 1.1,
-    "temperature": 0.1,
-    "stream": True,
-}
 model_id = "TheBloke/Llama-2-7B-Chat-GGML"
 device = "cpu"
 
 model = AutoModelForCausalLM.from_pretrained(
     model_id,
     model_type="llama",
-    # lib="avx2",  # for cpu use
-    gpu_layers=110,  # for gpu use (110 for 7b, 130 for 13b)
+    lib=PRETRAINED_LIB,
+    gpu_layers=PRETRAINED_GPU_LAYERS,
     hf=True,
 )
+
+
 tokenizer = AutoTokenizer.from_pretrained(
     "meta-llama/Llama-2-7b-chat-hf",
 )
+
+print("Loaded model!")
+
+# # define custom stopping criteria object
+# stop_list = ["\nHuman:", "\n```\n"]
+
+# stop_token_ids = [tokenizer(x)["input_ids"] for x in stop_list]
+# stop_token_ids
+
+# stop_token_ids = [torch.LongTensor(x).to(device) for x in stop_token_ids]
+# stop_token_ids
+
+
+# class StopOnTokens(StoppingCriteria):
+#     def __call__(
+#         self, input_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs
+#     ) -> bool:
+#         for stop_ids in stop_token_ids:
+#             if torch.eq(input_ids[0][-len(stop_ids) :], stop_ids).all():
+#                 return True
+#         return False
+
+
+# stopping_criteria = StoppingCriteriaList([StopOnTokens()])
 
 
 def get_prompt(
@@ -68,7 +98,7 @@ def run(
     chat_history: list[tuple[str, str]],
     system_prompt: str,
     max_new_tokens: int = 1024,
-    temperature: float = 0.8,
+    temperature: float = 0.1,
     top_p: float = 0.95,
     top_k: int = 50,
 ) -> Iterator[str]:
@@ -89,6 +119,7 @@ def run(
         top_k=top_k,
         temperature=temperature,
         num_beams=1,
+        repetition_penalty=1.1,
     )
     t = Thread(target=model.generate, kwargs=generate_kwargs)
     t.start()
