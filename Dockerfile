@@ -1,9 +1,14 @@
+# read the doc: https://huggingface.co/docs/hub/spaces-sdks-docker
+# you will also find guides on how best to write your Dockerfile
+
 FROM python:3.9
-RUN useradd -m -u 1000 user
+
 WORKDIR /code
-COPY ./.env /code/.env
+
 COPY ./requirements.txt /code/requirements.txt
-RUN pip install --upgrade pip
-RUN pip install -r /code/requirements.txt
-USER user
-COPY --link --chown=1000 ./ /code
+
+RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+
+COPY . .
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "7860"]
